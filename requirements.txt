@@ -44,12 +44,10 @@ seaborn>=0.13
 tqdm>=4.66
 pyyaml>=6.0.1
 
-<<<<<<< HEAD
 # ===== Development (optional) =====
 # jupyterlab>=4.1
 # python-dotenv>=1.0
 # pytest>=7.4
-=======
 # ===== Development & Testing =====
 jupyterlab>=4.1
 python-dotenv>=1.0
@@ -62,4 +60,3 @@ flake8>=7.0
 black>=24.1
 isort>=5.13
 mypy>=1.8
->>>>>>> 8632082 (Complete 10-stage MLOps pipeline with AdaBN domain adaptation)
