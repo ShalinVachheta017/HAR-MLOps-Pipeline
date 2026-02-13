@@ -1,0 +1,69 @@
+# Prometheus Configuration for HAR MLOps Pipeline
+# =================================================
+# 
+# This file configures Prometheus to scrape metrics from the HAR pipeline.
+# Place this file in your Prometheus configuration directory.
+#
+# Start Prometheus with:
+#   prometheus --config.file=prometheus.yml
+
+global:
+  scrape_interval: 15s          # How frequently to scrape targets
+  evaluation_interval: 15s       # How frequently to evaluate rules
+  external_labels:
+    monitor: 'har_mlops'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts/har_alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # HAR Inference Service
+  - job_name: 'har_inference'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # HAR Training Pipeline (when running)
+  - job_name: 'har_training'
+    static_configs:
+      - targets: ['localhost:8001']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # HAR Monitoring Service
+  - job_name: 'har_monitoring'
+    static_configs:
+      - targets: ['localhost:8002']
+    metrics_path: '/metrics'
+
+  # Node Exporter (optional - system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+
+  # Docker metrics (if using cAdvisor)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['localhost:8080']
+    metrics_path: '/metrics'
+
+# Remote write configuration (optional - for long-term storage)
+# remote_write:
+#   - url: "http://your-remote-storage:9201/write"

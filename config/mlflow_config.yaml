@@ -1,0 +1,63 @@
+# ============================================================================
+# MLflow Configuration
+# ============================================================================
+# This file configures MLflow experiment tracking for the MLOps pipeline.
+# ============================================================================
+
+mlflow:
+  # Tracking server URI
+  # Options:
+  #   - Local file: mlruns (default)
+  #   - Local server: http://localhost:5000
+  #   - Remote: http://your-mlflow-server:5000
+  tracking_uri: "mlruns"
+  
+  # Experiment name - groups related runs together
+  experiment_name: "anxiety-activity-recognition"
+  
+  # Model registry settings
+  registry:
+    # Where to register production models
+    model_name: "har-1dcnn-bilstm"
+    
+  # Artifact storage location
+  artifact_location: "mlruns/artifacts"
+
+# Default run parameters
+run_defaults:
+  # Tags applied to every run
+  tags:
+    project: "MasterArbeit_MLops"
+    author: "thesis-student"
+    model_type: "1D-CNN-BiLSTM"
+    task: "activity-recognition"
+    
+# Logging configuration
+logging:
+  # Log these metrics during training
+  metrics:
+    - accuracy
+    - loss
+    - val_accuracy
+    - val_loss
+    - f1_score
+    - precision
+    - recall
+    
+  # Log these parameters
+  parameters:
+    - learning_rate
+    - batch_size
+    - epochs
+    - window_size
+    - stride
+    - optimizer
+    - dropout_rate
+    
+  # Log these artifacts
+  artifacts:
+    - model_weights
+    - confusion_matrix
+    - classification_report
+    - training_history
+    - preprocessing_config

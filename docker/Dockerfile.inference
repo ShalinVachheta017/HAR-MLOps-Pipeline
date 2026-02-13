@@ -1,0 +1,70 @@
+# ============================================================================
+# Dockerfile for HAR Model Inference API
+# ============================================================================
+# This image provides a FastAPI-based REST API for serving the
+# 1D-CNN-BiLSTM activity recognition model.
+#
+# Build: docker build -t har-inference -f docker/Dockerfile.inference .
+# Run:   docker run -p 8000:8000 -v $(pwd)/models:/app/models har-inference
+# ============================================================================
+
+FROM python:3.11-slim
+
+# Metadata
+LABEL maintainer="thesis-student"
+LABEL description="HAR Model Inference API"
+LABEL version="1.0.0"
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    MODEL_PATH=/app/models/pretrained/fine_tuned_model_1dcnnbilstm.keras
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies (minimal for inference)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first (for Docker layer caching)
+COPY config/requirements.txt /app/requirements.txt
+
+# Install Python dependencies (inference-focused)
+RUN pip install --upgrade pip && \
+    pip install \
+    fastapi \
+    uvicorn[standard] \
+    tensorflow \
+    numpy \
+    pandas \
+    scipy \
+    pyyaml \
+    pydantic \
+    python-multipart
+
+# Copy source code
+COPY src/ /app/src/
+COPY config/ /app/config/
+
+# Copy the inference API
+COPY docker/api/ /app/api/
+
+# Create directories
+RUN mkdir -p /app/models /app/logs
+
+# Set Python path
+ENV PYTHONPATH=/app/src:/app/api:$PYTHONPATH
+
+# Expose API port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Run FastAPI with uvicorn
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

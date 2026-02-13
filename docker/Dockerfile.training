@@ -1,0 +1,53 @@
+# ============================================================================
+# Dockerfile for HAR Model Training
+# ============================================================================
+# This image provides a reproducible environment for training the
+# 1D-CNN-BiLSTM activity recognition model.
+#
+# Build: docker build -t har-training -f docker/Dockerfile.training .
+# Run:   docker run -v $(pwd)/data:/app/data -v $(pwd)/mlruns:/app/mlruns har-training
+# ============================================================================
+
+FROM python:3.11-slim
+
+# Metadata
+LABEL maintainer="thesis-student"
+LABEL description="HAR Model Training Environment"
+LABEL version="1.0.0"
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first (for Docker layer caching)
+COPY config/requirements.txt /app/requirements.txt
+
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install mlflow dvc tensorflow keras scikit-learn pandas numpy scipy pyyaml
+
+# Copy source code
+COPY src/ /app/src/
+COPY config/ /app/config/
+
+# Create directories for data and outputs
+RUN mkdir -p /app/data /app/models /app/mlruns /app/logs
+
+# Set Python path
+ENV PYTHONPATH=/app/src:$PYTHONPATH
+
+# Default command: show help
+CMD ["python", "-c", "print('HAR Training Container Ready. Use: python src/train.py')"]

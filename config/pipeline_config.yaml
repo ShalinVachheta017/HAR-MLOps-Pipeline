@@ -1,0 +1,69 @@
+# ============================================================================
+# Pipeline Configuration
+# ============================================================================
+# This file controls the preprocessing pipeline behavior.
+# Toggle features on/off with true/false values.
+# ============================================================================
+
+# Preprocessing Settings
+preprocessing:
+  # Gravity Removal Toggle
+  # Set to true to remove gravity component from accelerometer data
+  # This addresses domain shift when training data has gravity removed
+  # NOTE: Keep FALSE here - gravity removal should happen AFTER unit conversion
+  #       (sensor_data_pipeline outputs milliG, preprocess_data.py converts to m/s²)
+  # Recommendation: Apply gravity removal in preprocess_data.py after conversion
+  enable_gravity_removal: false
+  
+  # Gravity removal filter parameters (Butterworth high-pass)
+  gravity_filter:
+    cutoff_hz: 0.3       # Cutoff frequency (0.3 Hz is standard from UCI HAR)
+    order: 3             # Filter order (3 is typical)
+  
+  # Sampling frequency of the data
+  sampling_frequency_hz: 50
+  
+  # Resampling settings
+  resampling:
+    enabled: true
+    target_hz: 50
+    interpolation_method: linear
+
+# Data Validation Settings
+validation:
+  # Enable/disable input data validation
+  enabled: true
+  
+  # Validation thresholds
+  thresholds:
+    max_missing_ratio: 0.05        # Max 5% missing values allowed
+    max_acceleration_ms2: 50.0     # Max reasonable acceleration (m/s²)
+    max_gyroscope_dps: 500.0       # Max reasonable gyroscope (deg/s)
+    sampling_rate_tolerance: 0.1   # 10% tolerance for sampling rate check
+
+# Logging Settings
+logging:
+  level: INFO
+  log_to_file: true
+  log_dir: logs/preprocessing
+  max_bytes: 2000000
+  backup_count: 3
+
+# Output Settings
+output:
+  # Whether to save intermediate outputs
+  save_intermediate: false
+  
+  # Output file naming
+  suffix_gravity_removed: "_gravity_removed"
+  
+# Model Inference Settings
+inference:
+  # Window size for activity recognition (samples)
+  window_size: 200
+  
+  # Overlap between windows (0.5 = 50% overlap)
+  window_overlap: 0.5
+  
+  # Batch size for inference
+  batch_size: 32
