@@ -1,0 +1,142 @@
+# ============================================================================
+# Docker Compose for HAR MLOps Pipeline
+# ============================================================================
+# This file orchestrates all services for the MLOps pipeline:
+#   - MLflow tracking server
+#   - HAR inference API
+#   - Training environment (on-demand)
+#
+# Usage:
+#   Start all services:     docker-compose up -d
+#   Start specific service: docker-compose up -d mlflow
+#   View logs:              docker-compose logs -f
+#   Stop all:               docker-compose down
+#
+# Author: MLOps Pipeline
+# Date: December 11, 2025
+# ============================================================================
+
+services:
+  # ==========================================================================
+  # MLflow Tracking Server
+  # ==========================================================================
+  mlflow:
+    image: python:3.11-slim
+    container_name: har-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+      - ./models:/mlflow/models
+    working_dir: /mlflow
+    command: >
+      bash -c "pip install mlflow --quiet &&
+               mlflow server --backend-store-uri sqlite:///mlflow.db
+                             --default-artifact-root /mlflow/mlruns
+                             --host 0.0.0.0
+                             --port 5000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://localhost:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - har-network
+
+  # ==========================================================================
+  # HAR Inference API (FastAPI)
+  # ==========================================================================
+  inference:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.inference
+    container_name: har-inference
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models:ro
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+    environment:
+      - MODEL_PATH=/app/models/pretrained/fine_tuned_model_1dcnnbilstm.keras
+      - CONFIG_PATH=/app/config/pipeline_config.yaml
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      - mlflow
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - har-network
+
+  # ==========================================================================
+  # Training Service (on-demand)
+  # ==========================================================================
+  training:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.training
+    container_name: har-training
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./mlruns:/app/mlruns
+      - ./logs:/app/logs
+      - ./config:/app/config
+      - ./src:/app/src
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - PYTHONPATH=/app/src
+    depends_on:
+      - mlflow
+    # This service is meant to be run on-demand, not always running
+    profiles:
+      - training
+    networks:
+      - har-network
+
+  # ==========================================================================
+  # Data Preprocessing Service (on-demand)
+  # ==========================================================================
+  preprocessing:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.training
+    container_name: har-preprocessing
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./src:/app/src
+      - ./logs:/app/logs
+    environment:
+      - PYTHONPATH=/app/src
+    command: python src/sensor_data_pipeline.py
+    profiles:
+      - preprocessing
+    networks:
+      - har-network
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  har-network:
+    driver: bridge
+    name: har-mlops-network
+
+# ==========================================================================
+# Volumes (for data persistence)
+# ==========================================================================
+volumes:
+  mlflow-data:
+    name: har-mlflow-data
+  model-data:
+    name: har-model-data

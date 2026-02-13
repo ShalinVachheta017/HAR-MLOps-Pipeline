@@ -1,0 +1,215 @@
+# ============================================================================
+# Git Ignore for HAR MLOps Pipeline
+# ============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+.conda/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# mypy
+.mypy_cache/
+
+# ============================================================================
+# DVC - Data Version Control
+# ============================================================================
+# DVC cache (local storage - don't commit to git)
+.dvc_storage/
+.dvc/cache/
+
+# DVC internal files ARE tracked by git (keep .dvc/ and *.dvc files!)
+# .dvc/ folder contains config and lock files needed for DVC to work
+# *.dvc files are lightweight pointers to your actual data
+
+# ============================================================================
+# MLflow
+# ============================================================================
+# MLflow tracking data (large, use DVC or external storage)
+mlruns/
+
+# ============================================================================
+<<<<<<< HEAD
+# Data Files (tracked by DVC)
+# ============================================================================
+# These are tracked by DVC, not git
+# The .dvc files ARE tracked by git
+/data/prepared/
+/data/processed/
+/data/raw/
+/data/preprocessed/
+/data/samples_2005 dataset/
+
+# ============================================================================
+# Sensitive / local datasets to ignore (added per user request)
+# - Anxiety dataset: large and potentially sensitive raw/labeled data
+# - Users' labeled data: personal/sensitive, don't keep in git
+# These folders and any nested files should be ignored by git.
+/data/anxiety_dataset/
+/data/anxiety_dataset/**
+
+# Users' labeled data (entire users folder or nested labeled folders)
+/data/users/
+/data/users/**/labeled/
+/data/users/**/labeled/**
+
+# ============================================================================
+# Models (tracked by DVC)
+# ============================================================================
+/models/pretrained/
+/models/trained/
+
+# ============================================================================
+# Outputs
+# ============================================================================
+outputs/
+=======
+# Git should track:
+# - .dvc files (lightweight pointers to data, tracked by git)
+# - config files
+# - source code in src/
+# - tests/
+# - scripts/
+# - docker configurations
+# - CI/CD workflows
+# ============================================================================
+# IMPORTANT: Commit the .dvc files that reference data, but NOT the actual data
+# Use: git add *.dvc data/*.dvc
+# This makes data reproducible without storing massive files in git
+
+# ============================================================================
+# Temporary files
+# ============================================================================
+*.tmp
+*.bak
+temp/
+tmp/
+
+# ============================================================================
+# Secrets & Config (keep templates, ignore actual secrets)
+# ============================================================================
+.env
+.env.local
+*.pem
+*.key
+secrets/
+credentials/
+
+# ============================================================================
+# Miscellaneous
+# ============================================================================
+
+# ============================================================================
+# Large folders to ignore (papers, research, datasets) - ~350MB+
+# ============================================================================
+
+# DATA FOLDERS (all tracked by DVC, not git)
+data/
+data/**
+
+# MODEL FOLDERS (large, tracked by DVC)
+models/
+models/**
+
+# PAPERS & RESEARCH (potentially hundreds of MB)
+papers/
+papers/**
+papers needs to read/
+paper_for_questions/
+research_papers/
+research_papers/**
+
+# NOTEBOOKS (can have large outputs)
+notebooks/
+notebooks/**
+*.ipynb_checkpoints/
+
+# OUTPUTS & GENERATED FILES
+outputs/
+outputs/**
+reports/
+reports/**
+images/
+images/**
+
+# LOGS & RUNTIME DATA
+logs/
+logs/**
+mlruns/
+mlruns/**
+
+# ARCHIVE FOLDERS (old/historical large files)
+archive/
+archive/**
+
+# DOCS ARCHIVE & LARGE GENERATED FILES  
+docs/archive/
+docs/archive/**
+docs/figures/
+docs/figures/**
+
+# Decoded/large CSV files
+decoded_csv_files/
+decoded_csv_files/**
+
+# Large CSV data files
+*.csv
+all_users_data_labeled.csv
+
+# Large PDF files
+*.pdf
+
+# Cache and generated data
+.pytest_cache/
+.dvc_storage/
+.dvc/cache/
+

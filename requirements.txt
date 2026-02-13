@@ -1,0 +1,65 @@
+# ============================================================================
+# Requirements for HAR MLOps Pipeline
+# ============================================================================
+# For Docker builds, use: pip install -r requirements.txt
+# For local GPU: uncomment the PyTorch CUDA lines
+# ============================================================================
+
+# ===== Core data wrangling =====
+numpy>=1.24
+pandas>=2.0
+scipy>=1.10
+
+# ===== Deep Learning Framework =====
+# TensorFlow/Keras for model loading and training
+tensorflow>=2.14  # For CPU
+# For GPU: tensorflow-gpu>=2.14 (if CUDA is available)
+
+# ===== PyTorch (Optional - your model is Keras) =====
+# Uncomment below for GPU support
+# --extra-index-url https://download.pytorch.org/whl/cu121
+# torch==2.4.0+cu121
+# torchvision==0.19.0+cu121
+# torchaudio==2.4.0+cu121
+
+
+# ===== Metrics & evaluation =====
+scikit-learn>=1.3      # precision, recall, f1, accuracy
+
+# ===== Experiment tracking & MLOps =====
+mlflow>=2.11
+dvc>=3.50
+
+# ===== API & Serving =====
+fastapi>=0.109
+uvicorn[standard]>=0.27
+pydantic>=2.5
+python-multipart>=0.0.6
+
+# ===== Visualization =====
+matplotlib>=3.8
+seaborn>=0.13
+
+# ===== Utilities =====
+tqdm>=4.66
+pyyaml>=6.0.1
+
+<<<<<<< HEAD
+# ===== Development (optional) =====
+# jupyterlab>=4.1
+# python-dotenv>=1.0
+# pytest>=7.4
+=======
+# ===== Development & Testing =====
+jupyterlab>=4.1
+python-dotenv>=1.0
+pytest>=8.0
+pytest-cov>=4.1
+pytest-xdist>=3.5
+
+# ===== Code Quality =====
+flake8>=7.0
+black>=24.1
+isort>=5.13
+mypy>=1.8
+>>>>>>> 8632082 (Complete 10-stage MLOps pipeline with AdaBN domain adaptation)
